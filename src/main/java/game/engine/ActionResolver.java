@@ -1,20 +1,21 @@
 package game.engine;
 
 import game.model.*;
+import game.model.Character;
 
 import static game.engine.Logger.log;
 
 public class ActionResolver {
     public static String useAbility(Character actor, Character target, Ability a) {
-        if (a.requiresNoSilence &amp;&amp; actor.hasEffect(EffectType.SILENCE))
-        return actor.name + " пытается использовать " + a.name + ", но находится под Немотой!";
-        if (a.cooldown &gt; 0)
-        return a.name + " на перезарядке (" + a.cooldown + ")";
+        if (a.requiresNoSilence && actor.hasEffect(EffectType.SILENCE))
+            return actor.name + " пытается использовать " + a.name + ", но находится под Немотой!";
+        if (a.cooldown > 0)
+            return a.name + " на перезарядке (" + a.cooldown + ")";
 
         a.cooldown = a.cooldownMax;
 
         // Некоторым умениям не нужна атака/точность
-        boolean requiresHitCheck = a.baseDamage &gt; 0 || a.applyOnHit.stream().anyMatch(e -&gt; e.type == EffectType.BLEED || e.type == EffectType.POISON);
+        boolean requiresHitCheck = a.baseDamage > 0 || a.applyOnHit.stream().anyMatch(e -> e.type == EffectType.BLEED || e.type == EffectType.POISON);
         if (requiresHitCheck) {
             int baseHit = 90;
             if (target.hasEffect(EffectType.DISORIENT)) baseHit -= 25;
@@ -38,7 +39,7 @@ public class ActionResolver {
         }
 
         // Урон
-        if (a.baseDamage &gt; 0) {
+        if (a.baseDamage > 0) {
             int dmg = computeDamage(actor, target, a);
             int dealt = dealDamage(target, dmg);
             out.append("Урон: ").append(dealt).append(". ");
@@ -58,13 +59,13 @@ public class ActionResolver {
     private static int computeDamage(Character actor, Character target, Ability a) {
         int base = a.baseDamage;
         switch (a.damageType) {
-            case PHYSICAL -&gt; base += actor.stats.power;
-            case FIRE, POISON, ARCANE -&gt; base += actor.stats.mastery;
+            case PHYSICAL -> base += actor.stats.power;
+            case FIRE, POISON, ARCANE -> base += actor.stats.mastery;
         }
         int mitigation;
         switch (a.damageType) {
-            case PHYSICAL -&gt; mitigation = target.stats.defense;
-            default -&gt; mitigation = target.stats.resistance;
+            case PHYSICAL -> mitigation = target.stats.defense;
+            default -> mitigation = target.stats.resistance;
         }
         int raw = Math.max(0, base - mitigation);
         // Guard
@@ -83,16 +84,16 @@ public class ActionResolver {
     public static String endTurn(Character c) {
         StringBuilder sb = new StringBuilder();
         // тики эффектов
-        int bleed = c.effects.stream().filter(e -&gt; e.type == EffectType.BLEED &amp;&amp; e.turns &gt; 0).mapToInt(e -&gt; e.potency).sum();
-        int poison = c.effects.stream().filter(e -&gt; e.type == EffectType.POISON &amp;&amp; e.turns &gt; 0).mapToInt(e -&gt; e.potency).sum();
+        int bleed = c.effects.stream().filter(e -> e.type == EffectType.BLEED && e.turns > 0).mapToInt(e -> e.potency).sum();
+        int poison = c.effects.stream().filter(e -> e.type == EffectType.POISON && e.turns > 0).mapToInt(e -> e.potency).sum();
         int dot = bleed + poison;
-        if (dot &gt; 0) {
+        if (dot > 0) {
             int taken = dealDamage(c, dot);
             sb.append(c.name).append(" страдает от эффектов: ").append(taken).append(" урона. ");
         }
         // уменьшить длительность, очистить закончившиеся, снять guard если закончился
         for (Effect e : c.effects) e.turns--;
-        c.effects.removeIf(e -&gt; e.turns &lt;= 0);
+        c.effects.removeIf(e -> e.turns <= 0);
         c.guarding = c.hasEffect(EffectType.GUARD);
         // тик кулдаунов происходит вне, в BattleEngine
         return sb.toString();

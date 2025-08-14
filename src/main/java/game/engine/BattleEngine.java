@@ -1,9 +1,9 @@
 package game.engine;
 
 import game.model.*;
+import game.model.Character;
 import game.util.Rng;
 
-import java.lang.Character;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -19,7 +19,7 @@ public class BattleEngine {
         log("Противник: " + enemy.name + " HP " + enemy.stats.hp);
         hr();
 
-        while (player.isAlive() &amp;&amp; enemy.isAlive()) {
+        while (player.isAlive() && enemy.isAlive()) {
             // Ход игрока
             player.tickCooldowns();
             enemy.tickCooldowns();
@@ -64,7 +64,7 @@ public class BattleEngine {
         String efx = enemy.effects.isEmpty() ? "нет" : String.join(", ", enemy.effects.stream().map(Effect::name).toList());
         log("Эффекты игрока: " + pfx);
         log("Эффекты врага: " + efx);
-        for (int i = 0; i &lt; player.abilities.size(); i++) {
+        for (int i = 0; i < player.abilities.size(); i++) {
             log((i + 1) + ") " + player.abilities.get(i).line());
         }
     }
@@ -75,21 +75,21 @@ public class BattleEngine {
             String s = in.nextLine().trim();
             try {
                 int idx = Integer.parseInt(s) - 1;
-                if (idx &gt;= 0 &amp;&amp; idx &lt; player.abilities.size()) return player.abilities.get(idx);
+                if (idx >= 0 && idx < player.abilities.size()) return player.abilities.get(idx);
             } catch (Exception ignored) {}
             log("Некорректный выбор");
         }
     }
 
     private static Ability chooseEnemyAbility(Character enemy, Character player) {
-        // приоритет: если немота доступна и у игрока нет немоты — наложить, если кулдаун 0
-        List&lt;ability&gt; usable = new ArrayList&lt;&gt;();
+        // приоритет: если "немота" доступна и у игрока нет немоты — наложить, если кулдаун 0
+        List<Ability> usable = new ArrayList<>();
         for (Ability a : enemy.abilities) if (a.cooldown == 0) usable.add(a);
         if (usable.isEmpty()) return enemy.abilities.get(0);
         // простая эвристика
-        for (Ability a : usable) if (a.id.equals("silence") &amp;&amp; !player.hasEffect(EffectType.SILENCE)) return a;
-        for (Ability a : usable) if (a.id.equals("bleed") &amp;&amp; !player.hasEffect(EffectType.BLEED)) return a;
-        for (Ability a : usable) if (a.id.equals("poison_dart") &amp;&amp; !player.hasEffect(EffectType.POISON)) return a;
+        for (Ability a : usable) if (a.id.equals("silence") && !player.hasEffect(EffectType.SILENCE)) return a;
+        for (Ability a : usable) if (a.id.equals("bleed") && !player.hasEffect(EffectType.BLEED)) return a;
+        for (Ability a : usable) if (a.id.equals("poison_dart") && !player.hasEffect(EffectType.POISON)) return a;
         for (Ability a : usable) if (a.id.equals("fireball")) return a;
         return usable.get(Rng.range(0, usable.size() - 1));
     }
@@ -97,7 +97,7 @@ public class BattleEngine {
     private static Character createEnemy(PlayerProfile profile) {
         Character e = new Character("Бандит", new Stats(90, 10, 9, 5, 4));
         // копия базового набора, но можно урезать
-        e.abilities.addAll(new ArrayList&lt;&gt;(AbilityFactory.basicSet()));
+        e.abilities.addAll(new ArrayList<>(AbilityFactory.basicSet()));
         return e;
     }
 }

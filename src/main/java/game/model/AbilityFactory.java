@@ -1,12 +1,7 @@
-package game.engine;
+package game.model;
 
-import game.model.Ability;
-import game.model.DamageType;
-import game.model.Effect;
-import game.model.EffectType;
-
-class AbilityFactory {
-    public static java.util.List<ability> basicSet() {
+public class AbilityFactory {
+    public static java.util.List<Ability> basicSet() {
         return java.util.List.of(
                 new Ability("strike", "Удар", "Физ. урон", 0, DamageType.PHYSICAL, 12, java.util.List.of(), true),
                 new Ability("guard", "Стойка", "Встать в защиту (Guard), снижает урон на 40% 1 ход", 2, DamageType.PHYSICAL, 0,
